@@ -1,6 +1,5 @@
 fastapi
 pandas
 requests
-pickle
 diskcache
 sqlite3
