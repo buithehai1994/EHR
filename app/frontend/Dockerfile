@@ -10,11 +10,11 @@ COPY requirements.txt ./
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire app directory inside the app folder
-COPY app ./app
+# Copy the frontend folder containing app.py into the container
+COPY app/frontend/ ./frontend
 
 # Expose the port the app runs on
-EXPOSE 8000
+EXPOSE 8501
 
-# Command to run FastAPI
-CMD ["uvicorn", "app.backend.api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run Streamlit
+CMD ["streamlit", "run", "frontend/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
