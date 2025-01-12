@@ -26,4 +26,4 @@ async def get_dataframe():
     if 'full_dataframe' not in globals():
         raise HTTPException(status_code=404, detail="DataFrame not loaded.")
     
-    return full_dataframe.to_dict(orient="records")  # Return the entire DataFrame as JSON records
+    return full_dataframe  # Return the entire DataFrame as a pandas DataFrame
