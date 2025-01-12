@@ -1,7 +1,7 @@
 services:
   - type: web
     runtime: docker
-    name: fastapi-EHR
+    name: fastapi-backend
     plan: free
     autoDeploy: true
     envVars:
@@ -9,10 +9,10 @@ services:
         value: "8000"
       - key: PYTHONUNBUFFERED
         value: "1"
-    dockerfilePath: "app/backend/Dockerfile"
+    dockerfilePath: "EHR/app/backend/Dockerfile"
 
   - type: web
-    name: streamlit-EHR
+    name: streamlit-frontend
     runtime: docker
     plan: free
     autoDeploy: true
@@ -21,7 +21,7 @@ services:
         value: "8501"
       - key: PYTHONUNBUFFERED
         value: "1"
+      # Setting the backend URL using Render's internal hostname convention
       - key: BACKEND_URL
-        value: "http://fastapi-backend:8000"
-    healthCheckPath: "/health"
-    dockerfilePath: "app/frontend/Dockerfile"
+        value: "http://fastapi-backend:8000"  # Connects Streamlit to FastAPI internally
+    dockerfilePath: "EHR/app/frontend/Dockerfile"
