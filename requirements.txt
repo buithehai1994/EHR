@@ -8,3 +8,4 @@ pyarrow
 fastparquet
 pyspark
 streamlit
+sentence_transformers
