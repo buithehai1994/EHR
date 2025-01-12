@@ -3,5 +3,6 @@ fastapi
 pandas
 requests
 diskcache
+dask[complete]
 pyarrow
 fastparquet
