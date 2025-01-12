@@ -1,5 +1,5 @@
 # Front end: Query Historical Data
-https://ehr-api.onrender.com/
+https://fastapi-backend-5esr.onrender.com/
 
 # Backend: Display answers 
-https://ehr-chatbot.onrender.com
+https://streamlit-frontend-jkni.onrender.com/
