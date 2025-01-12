@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
-import pandas as pd
+import dask.dataframe as dd  # Dask for handling large datasets
 import os
 
 # Initialize the FastAPI app
 app = FastAPI()
 
-# Function to load individual parquet files into small DataFrames
+# Function to load individual parquet files into small DataFrames using Dask
 def load_parquet_files(data_folder='data'):
     parquet_files = [os.path.join(data_folder, f) for f in os.listdir(data_folder) if f.endswith('.parquet')]
     
@@ -15,7 +15,7 @@ def load_parquet_files(data_folder='data'):
     dataframes = []
     for f in sorted(parquet_files):
         try:
-            df = pd.read_parquet(f)
+            df = dd.read_parquet(f)  # Read each Parquet file using Dask
             dataframes.append(df)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error loading parquet file {f}: {str(e)}")
@@ -29,8 +29,8 @@ async def load_dataframe():
     dataframe_parts = load_parquet_files()
     
     if dataframe_parts:
-        # Load each parquet into separate DataFrame and store in a list
-        full_dataframe = pd.concat(dataframe_parts, ignore_index=True)
+        # Concatenate each Dask DataFrame into a single Dask DataFrame
+        full_dataframe = dd.concat(dataframe_parts)
     else:
         raise HTTPException(status_code=404, detail="No DataFrames were loaded.")
 
@@ -40,4 +40,5 @@ async def get_dataframe():
     if 'full_dataframe' not in globals():
         raise HTTPException(status_code=404, detail="DataFrame not loaded.")
     
-    return full_dataframe  # Return the entire DataFrame as a pandas DataFrame
+    # Compute the result to convert Dask DataFrame into a pandas DataFrame
+    return full_dataframe.compute()  # Convert Dask DataFrame into a pandas DataFrame for return
