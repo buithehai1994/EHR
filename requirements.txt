@@ -6,3 +6,4 @@ diskcache
 dask[complete]
 pyarrow
 fastparquet
+pyspark
