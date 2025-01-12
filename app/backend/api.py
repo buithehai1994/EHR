@@ -1,11 +1,16 @@
 from fastapi import FastAPI, HTTPException
-import dask.dataframe as dd  # Dask for handling large datasets
+from pyspark.sql import SparkSession
 import os
 
 # Initialize the FastAPI app
 app = FastAPI()
 
-# Function to load individual parquet files into small DataFrames using Dask
+# Initialize Spark session
+spark = SparkSession.builder \
+    .appName("Parquet Data Loader") \
+    .getOrCreate()
+
+# Function to load individual parquet files into Spark DataFrames
 def load_parquet_files(data_folder='data'):
     parquet_files = [os.path.join(data_folder, f) for f in os.listdir(data_folder) if f.endswith('.parquet')]
     
@@ -15,7 +20,7 @@ def load_parquet_files(data_folder='data'):
     dataframes = []
     for f in sorted(parquet_files):
         try:
-            df = dd.read_parquet(f)  # Read each Parquet file using Dask
+            df = spark.read.parquet(f)  # Read each Parquet file using Spark
             dataframes.append(df)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error loading parquet file {f}: {str(e)}")
@@ -29,8 +34,10 @@ async def load_dataframe():
     dataframe_parts = load_parquet_files()
     
     if dataframe_parts:
-        # Concatenate each Dask DataFrame into a single Dask DataFrame
-        full_dataframe = dd.concat(dataframe_parts)
+        # Concatenate each Spark DataFrame into a single DataFrame
+        full_dataframe = dataframe_parts[0]  # Start with the first one for simplicity
+        for df in dataframe_parts[1:]:
+            full_dataframe = full_dataframe.union(df)
     else:
         raise HTTPException(status_code=404, detail="No DataFrames were loaded.")
 
@@ -40,5 +47,5 @@ async def get_dataframe():
     if 'full_dataframe' not in globals():
         raise HTTPException(status_code=404, detail="DataFrame not loaded.")
     
-    # Compute the result to convert Dask DataFrame into a pandas DataFrame
-    return full_dataframe.compute()  # Convert Dask DataFrame into a pandas DataFrame for return
+    # Convert Spark DataFrame to Pandas DataFrame and return
+    return full_dataframe.toPandas()  # Convert Spark DataFrame into a pandas DataFrame for return
