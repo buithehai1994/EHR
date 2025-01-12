@@ -11,7 +11,7 @@ import numpy as np
 # Load environment variables from .env file
 load_dotenv()
 
-# Fetch Groq API key from environment variables
+# Fetch Gemini API key from environment variables
 api_key= os.getenv("gemini_api")
 
 # Load the model
@@ -20,27 +20,34 @@ model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 # Title for the Streamlit app
 st.title('Patient Record Interaction App')
 
-# Define the URL of the FastAPI endpoint
-api_url = "https://fastapi-backend-5esr.onrender.com/load_data/"
+@st.cache_data()
+def load_data():
+    # Define the URL of the FastAPI endpoint
+    api_url = "https://fastapi-backend-5esr.onrender.com/load_data/"
 
-# Make a GET request to the FastAPI endpoint
-response = requests.get(api_url)
+    # Make a GET request to the FastAPI endpoint
+    response = requests.get(api_url)
 
-# Parse the JSON data
-data = response.json().get('data')
+    # Parse the JSON data
+    data = response.json().get('data')
 
-# Convert JSON string to DataFrame directly
-df = pd.read_json(data)
+    # Convert JSON string to DataFrame directly
+    df = pd.read_json(data)
+    return df
+
+df=load_data()
 
 # Endpoint URL
 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}"
 
+@st.cache_resource
 # Function to retrieve relevant data based on symptom embedding
 def retrieve_relevant_data(symptom_embedding, df):
     similarities = cosine_similarity([symptom_embedding], df['symptom_embedding'].tolist())[0]
-    top_indices = np.argsort(similarities)[-5:]  # Top 5 most similar entries
+    top_indices = np.argsort(similarities)[-3:]  # Top 3 most similar entries
     return df.iloc[top_indices]
 
+@st.cache_resource
 # Function to interact with the API using the prompt template and embedding-based retrieval
 def chat_with_embeddings(symptom_text, df):
     symptom_embedding = model.encode(symptom_text)
