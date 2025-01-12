@@ -56,17 +56,9 @@ def fetch_pickle_file():
 def read_root():
     return {"message": "Welcome to the Pickle File Reader API"}
 
-# Endpoint to interact with the cached dataframe using SQL
-@app.get("/query-sql/{query}")
-def query_sqlite(query: str):
+# Endpoint to interact with the cached dataframe using python
+@app.get("/return-data")
+def return_data():
     try:
         df = fetch_pickle_file()  # Fetch the cached dataframe
-        conn = sqlite3.connect(":memory:")  # Create an in-memory SQLite database
-        df.to_sql('data', conn, index=False, if_exists='replace')  # Store DataFrame in SQLite in memory
-        
-        result = pd.read_sql_query(query, conn)
-        conn.close()
-        return {"columns": list(result.columns), "result": result.head().to_dict()}  # Return column names and sample query result
-    except Exception as e:
-        print(f"Error while querying SQLite: {e}")
-        raise HTTPException(status_code=500, detail="Failed to execute SQL query")
+        return df
