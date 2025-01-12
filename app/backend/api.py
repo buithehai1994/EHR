@@ -1,51 +1,78 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pyspark.sql import SparkSession
 import os
 
-# Initialize the FastAPI app
 app = FastAPI()
 
 # Initialize Spark session
 spark = SparkSession.builder \
-    .appName("Parquet Data Loader") \
+    .appName("Dynamic Parquet Data Loader") \
     .getOrCreate()
 
-# Function to load individual parquet files into Spark DataFrames
-def load_parquet_files(data_folder='data'):
-    parquet_files = [os.path.join(data_folder, f) for f in os.listdir(data_folder) if f.endswith('.parquet')]
+# Path to the data folder
+DATA_FOLDER = "data"
+
+
+# Function to load a specific Parquet file into a Spark DataFrame
+def load_parquet_file(file_name: str):
+    file_path = os.path.join(DATA_FOLDER, file_name)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail=f"File '{file_name}' not found.")
     
-    if not parquet_files:
-        raise HTTPException(status_code=404, detail="No parquet files found in the data folder.")
+    try:
+        return spark.read.parquet(file_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading Parquet file '{file_name}': {str(e)}")
+
+
+# Endpoint to list available Parquet files
+@app.get("/list_files")
+async def list_files():
+    if not os.path.exists(DATA_FOLDER):
+        raise HTTPException(status_code=404, detail="Data folder not found.")
     
+    files = [f for f in os.listdir(DATA_FOLDER) if f.endswith('.parquet')]
+    if not files:
+        raise HTTPException(status_code=404, detail="No Parquet files found.")
+    
+    return {"files": sorted(files)}
+
+
+# Endpoint to fetch data from a specified number of Parquet files
+@app.get("/get_data")
+async def get_data(
+    num_files: int = Query(..., ge=1, description="Number of Parquet files to load (starting from the first one)")
+):
+    # List all Parquet files
+    if not os.path.exists(DATA_FOLDER):
+        raise HTTPException(status_code=404, detail="Data folder not found.")
+
+    files = sorted([f for f in os.listdir(DATA_FOLDER) if f.endswith('.parquet')])
+    if not files:
+        raise HTTPException(status_code=404, detail="No Parquet files found.")
+    
+    # Validate the number of files to load
+    if num_files > len(files):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Requested {num_files} files, but only {len(files)} are available."
+        )
+
+    # Load the specified number of Parquet files
+    selected_files = files[:num_files]
     dataframes = []
-    for f in sorted(parquet_files):
-        try:
-            df = spark.read.parquet(f)  # Read each Parquet file using Spark
-            dataframes.append(df)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error loading parquet file {f}: {str(e)}")
-    
-    return dataframes
+    for file_name in selected_files:
+        df = load_parquet_file(file_name)
+        dataframes.append(df)
 
-# Load all the DataFrames from parquet files and concatenate them into a single DataFrame on startup
-@app.on_event("startup")
-async def load_dataframe():
-    global full_dataframe
-    dataframe_parts = load_parquet_files()
-    
-    if dataframe_parts:
-        # Concatenate each Spark DataFrame into a single DataFrame
-        full_dataframe = dataframe_parts[0]  # Start with the first one for simplicity
-        for df in dataframe_parts[1:]:
-            full_dataframe = full_dataframe.union(df)
-    else:
-        raise HTTPException(status_code=404, detail="No DataFrames were loaded.")
+    # Concatenate the DataFrames
+    combined_df = dataframes[0]
+    for df in dataframes[1:]:
+        combined_df = combined_df.union(df)
 
-# Define an endpoint to display the entire concatenated DataFrame
-@app.get("/get_dataframe")
-async def get_dataframe():
-    if 'full_dataframe' not in globals():
-        raise HTTPException(status_code=404, detail="DataFrame not loaded.")
-    
-    # Convert Spark DataFrame to Pandas DataFrame and return
-    return full_dataframe.toPandas()  # Convert Spark DataFrame into a pandas DataFrame for return
+    # Convert to Pandas DataFrame
+    try:
+        pandas_df = combined_df.toPandas()
+        return pandas_df.to_dict(orient="records")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error converting DataFrame: {str(e)}")
