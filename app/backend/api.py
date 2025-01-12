@@ -16,9 +16,21 @@ def read_root():
 def load_and_display_data():
     try:
         # Load the parquet file
-        df = pd.read_parquet(file_path, engine='pyarrow')
-        return df.to_dict(orient="records")
+        data = pd.read_parquet(file_path, engine='pyarrow')
+        
+        # Ensure the DataFrame is not empty
+        if data.empty:
+            return {"error": "The parquet file is empty."}
+        
+        # Convert DataFrame to a serializable format (JSON)
+        result = data.to_json(orient='records')
+        
+        # Return the JSON response
+        return {"data": result}
+        
     except FileNotFoundError:
-        return {"error": "The file data/filtered_df_part_1.parquet does not exist."}
+        return {"error": f"The file {file_path} does not exist."}
+    except pd.errors.EmptyDataError:
+        return {"error": "The parquet file is empty."}
     except Exception as e:
         return {"error": f"An error occurred: {str(e)}"}
