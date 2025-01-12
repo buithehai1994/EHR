@@ -1,7 +1,7 @@
 services:
   - type: web
     runtime: docker
-    name: fastapi-backend
+    name: fastapi-EHR
     plan: free
     autoDeploy: true
     envVars:
@@ -12,7 +12,7 @@ services:
     dockerfilePath: "EHR/app/backend/Dockerfile"
 
   - type: web
-    name: streamlit-frontend
+    name: streamlit-EHR
     runtime: docker
     plan: free
     autoDeploy: true
