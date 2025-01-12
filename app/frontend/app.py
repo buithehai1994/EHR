@@ -21,7 +21,7 @@ model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 st.title('Patient Record Interaction App')
 
 # Define the URL of the FastAPI endpoint
-api_url = "https://ehr-api.onrender.com/load_data/"
+api_url = "https://fastapi-backend-5esr.onrender.com/load_data/"
 
 # Make a GET request to the FastAPI endpoint
 response = requests.get(api_url)
