@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 import json
 import os
+from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
