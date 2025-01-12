@@ -9,7 +9,7 @@ services:
         value: "8000"
       - key: PYTHONUNBUFFERED
         value: "1"
-    dockerfilePath: "EHR/backend/Dockerfile"
+    dockerfilePath: "EHR/app/backend/Dockerfile"
 
   - type: web
     name: streamlit-EHR
@@ -24,4 +24,4 @@ services:
       - key: BACKEND_URL
         value: "http://fastapi-backend:8000"
     healthCheckPath: "/health"
-    dockerfilePath: "EHR/frontend/Dockerfile"
+    dockerfilePath: "EHR/app/frontend/Dockerfile"
