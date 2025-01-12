@@ -62,3 +62,5 @@ def return_data():
     try:
         df = fetch_pickle_file()  # Fetch the cached dataframe
         return df
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to fetch the DataFrame from cache")
