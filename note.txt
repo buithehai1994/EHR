@@ -1,1 +1,2 @@
 https://ehr-api.onrender.com/
+https://ehr-chatbot.onrender.com
