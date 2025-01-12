@@ -34,9 +34,8 @@ def fetch_pickle_file():
         response = requests.get(DROPBOX_URL, stream=True)
         response.raise_for_status()  # Raise an error for bad responses
 
-        # Load the content of the pickle file directly into memory
-        with io.BytesIO(response.content) as file:
-            data = pickle.load(file)
+       # Load the content of the pickle file directly into memory
+        data = pickle.load(response.raw)
 
         # Save the dataframe to a persistent cache file
         with open(PERSISTENT_CACHE_FILE, "wb") as f:
