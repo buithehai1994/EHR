@@ -23,7 +23,7 @@ st.title('Patient Record Interaction App')
 @st.cache_data()
 def load_data():
     # Define the URL of the FastAPI endpoint
-    api_url = "https://ehr-api.onrender.com/load_data/"
+    api_url = "https://ehr-api-nm8l.onrender.com/load_data/"
 
     # Make a GET request to the FastAPI endpoint
     response = requests.get(api_url)
