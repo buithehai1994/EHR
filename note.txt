@@ -1,5 +1,0 @@
-# Front end: Query Historical Data
-https://fastapi-backend-5esr.onrender.com/
-
-# Backend: Display answers 
-https://streamlit-frontend-jkni.onrender.com/
