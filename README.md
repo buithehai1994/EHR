@@ -39,7 +39,7 @@ This project consists of a frontend and backend system designed for querying his
    Use the Streamlit frontend at [https://streamlit-frontend-jkni.onrender.com/](https://streamlit-frontend-jkni.onrender.com/) to ask questions about patient data.
 
 2. **Query Historical Data**:  
-   Access the FastAPI backend at [https://ehr-api-nm8l.onrender.com/](https://ehr-api-nm8l.onrender.com/)](https://fastapi-backend-5esr.onrender.com/) to query patient data directly via API endpoints.
+   Access the FastAPI backend at [https://ehr-api-nm8l.onrender.com/](https://ehr-api-nm8l.onrender.com/) to query patient data directly via API endpoints.
 
 ---
 
@@ -54,7 +54,7 @@ This project consists of a frontend and backend system designed for querying his
 ## Deployment Instructions
 
 1. **Backend**:
-   - Deployed on Render at [https://fastapi-backend-5esr.onrender.com/](https://fastapi-backend-5esr.onrender.com/).
+   - Deployed on Render at [https://ehr-api-nm8l.onrender.com/](https://ehr-api-nm8l.onrender.com/).
    - Accepts API requests to query historical EHR data.
 
 2. **Frontend**:
