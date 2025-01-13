@@ -5,7 +5,7 @@ import pandas as pd
 app = FastAPI()
 
 # Define the file path
-file_path = 'data/chunk_1.json'
+file_path = 'test_data/chunk_1.json'
 
 @app.get("/")
 def read_root():
